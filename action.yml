@@ -59,7 +59,7 @@ runs:
     - name: Build package
       shell: bash
       run: |
-        if [ -n "${{ inputs.build-command }}" ] && grep -q "\"${{ inputs.build-command }}\":\" package.json 2>/dev/null; then
+        if [ -n "${{ inputs.build-command }}" ] && grep -q "\"${{ inputs.build-command }}\":" package.json 2>/dev/null; then
           echo "Running build command: ${{ inputs.build-command }}"
           npm run ${{ inputs.build-command }}
         elif [ -n "${{ inputs.build-command }}" ]; then
