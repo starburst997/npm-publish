@@ -1,4 +1,4 @@
-name: "NPM Publish Action"
+name: "NPM Version Publish"
 description: "Version, build, and publish NPM packages to the NPM registry"
 author: "JD Boivin"
 
