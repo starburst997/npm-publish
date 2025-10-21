@@ -1,0 +1,79 @@
+name: "NPM Publish"
+description: "Version, build, and publish NPM packages to the NPM registry"
+author: "JD Boivin"
+
+inputs:
+  node-version:
+    description: "Node.js version to use"
+    required: false
+    default: "20"
+
+  registry-url:
+    description: "NPM registry URL"
+    required: false
+    default: "https://registry.npmjs.org"
+
+  version:
+    description: "Version to set in package.json (optional, skip if not provided)"
+    required: false
+    default: ""
+
+  build-command:
+    description: "Build script name from package.json (optional)"
+    required: false
+    default: ""
+
+  token:
+    description: "NPM authentication token"
+    required: true
+
+  ignore-scripts:
+    description: "Run npm ci with --ignore-scripts flag"
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: ${{ inputs.registry-url }}
+        cache: "npm"
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        if [ "${{ inputs.ignore-scripts }}" == "true" ]; then
+          npm ci --ignore-scripts
+        else
+          npm ci
+        fi
+
+    - name: Update package version
+      if: inputs.version != ''
+      shell: bash
+      run: npm version ${{ inputs.version }} --no-git-tag-version
+
+    - name: Build package
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.build-command }}" ] && grep -q "\"${{ inputs.build-command }}\":\" package.json 2>/dev/null; then
+          echo "Running build command: ${{ inputs.build-command }}"
+          npm run ${{ inputs.build-command }}
+        elif [ -n "${{ inputs.build-command }}" ]; then
+          echo "Build command '${{ inputs.build-command }}' not found in package.json, skipping..."
+        else
+          echo "No build command specified, skipping..."
+        fi
+
+    - name: Publish to NPM
+      shell: bash
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.token }}
+      run: npm publish
+
+branding:
+  icon: "package"
+  color: "red"
