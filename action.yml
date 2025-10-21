@@ -38,6 +38,11 @@ inputs:
     required: false
     default: "true"
 
+  pnpm-version:
+    description: "pnpm version to use (auto-detected from packageManager field if not specified)"
+    required: false
+    default: ""
+
 runs:
   using: "composite"
   steps:
@@ -48,6 +53,19 @@ runs:
         if [ -f "pnpm-lock.yaml" ]; then
           echo "pm=pnpm" >> $GITHUB_OUTPUT
           echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
+
+          # Detect pnpm version from packageManager field or use input or default
+          if [ -n "${{ inputs.pnpm-version }}" ]; then
+            PNPM_VERSION="${{ inputs.pnpm-version }}"
+          elif [ -f "package.json" ] && command -v jq &> /dev/null; then
+            # Try to extract from packageManager field
+            PNPM_VERSION=$(jq -r '.packageManager // ""' package.json | grep -oP 'pnpm@\K[0-9.]+' || echo "")
+          fi
+          # Use sensible default if not found
+          if [ -z "$PNPM_VERSION" ]; then
+            PNPM_VERSION="10"
+          fi
+          echo "pnpm-version=$PNPM_VERSION" >> $GITHUB_OUTPUT
         elif [ -f "yarn.lock" ]; then
           echo "pm=yarn" >> $GITHUB_OUTPUT
           echo "lockfile=yarn.lock" >> $GITHUB_OUTPUT
@@ -62,6 +80,8 @@ runs:
     - name: Setup pnpm
       if: steps.detect-pm.outputs.pm == 'pnpm'
       uses: pnpm/action-setup@v4
+      with:
+        version: ${{ steps.detect-pm.outputs.pnpm-version }}
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
