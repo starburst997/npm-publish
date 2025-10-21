@@ -17,8 +17,6 @@ A GitHub Action for versioning, building, and publishing NPM packages to the NPM
 ```yaml
 - name: Publish to NPM
   uses: starburst997/npm-publish@v1
-  with:
-    token: ${{ secrets.NPM_TOKEN }}
 ```
 
 ## Inputs
@@ -40,8 +38,6 @@ A GitHub Action for versioning, building, and publishing NPM packages to the NPM
 
 ```yaml
 - uses: starburst997/npm-publish@v1
-  with:
-    token: ${{ secrets.NPM_TOKEN }}
 ```
 
 ### With version update
@@ -50,7 +46,6 @@ A GitHub Action for versioning, building, and publishing NPM packages to the NPM
 - uses: starburst997/npm-publish@v1
   with:
     version: "1.2.3"
-    token: ${{ secrets.NPM_TOKEN }}
 ```
 
 ### With build step
@@ -59,7 +54,6 @@ A GitHub Action for versioning, building, and publishing NPM packages to the NPM
 - uses: starburst997/npm-publish@v1
   with:
     build-command: "build"
-    token: ${{ secrets.NPM_TOKEN }}
 ```
 
 ### Custom Node.js version
@@ -68,7 +62,6 @@ A GitHub Action for versioning, building, and publishing NPM packages to the NPM
 - uses: starburst997/npm-publish@v1
   with:
     node-version: "18"
-    token: ${{ secrets.NPM_TOKEN }}
 ```
 
 ### With provenance (using OIDC)
@@ -100,7 +93,6 @@ Or specify the version manually:
 - uses: starburst997/npm-publish@v1
   with:
     pnpm-version: "10.12.1"
-    token: ${{ secrets.NPM_TOKEN }}
 ```
 
 ## Package Manager Support
