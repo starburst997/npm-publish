@@ -6,7 +6,7 @@ inputs:
   node-version:
     description: "Node.js version to use"
     required: false
-    default: "20"
+    default: "24"
 
   registry-url:
     description: "NPM registry URL"
