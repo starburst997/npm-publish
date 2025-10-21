@@ -74,16 +74,17 @@ runs:
           echo "No build command specified, skipping..."
         fi
 
-    - name: Publish to NPM
+    - name: Publish to NPM (OIDC)
+      if: inputs.provenance == 'true'
+      shell: bash
+      run: npm publish
+
+    - name: Publish to NPM (Token)
+      if: inputs.provenance != 'true'
       shell: bash
       env:
         NODE_AUTH_TOKEN: ${{ inputs.token }}
-      run: |
-        if [ "${{ inputs.provenance }}" == "true" ]; then
-          npm publish --provenance --access public
-        else
-          npm publish
-        fi
+      run: npm publish
 
 branding:
   icon: "package"

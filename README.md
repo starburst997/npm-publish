@@ -21,14 +21,15 @@ A GitHub Action for versioning, building, and publishing NPM packages to the NPM
 
 ## Inputs
 
-| Input            | Description                         | Default                      | Required |
-| ---------------- | ----------------------------------- | ---------------------------- | -------- |
-| `node-version`   | Node.js version to use              | `20`                         | No       |
-| `registry-url`   | NPM registry URL                    | `https://registry.npmjs.org` | No       |
-| `version`        | Version to set in package.json      | -                            | No       |
-| `build-command`  | Build script name from package.json | -                            | No       |
-| `token`          | NPM authentication token            | -                            | Yes      |
-| `ignore-scripts` | Run npm ci with --ignore-scripts    | `true`                       | No       |
+| Input            | Description                                                 | Default                      | Required |
+| ---------------- | ----------------------------------------------------------- | ---------------------------- | -------- |
+| `node-version`   | Node.js version to use                                      | `20`                         | No       |
+| `registry-url`   | NPM registry URL                                            | `https://registry.npmjs.org` | No       |
+| `version`        | Version to set in package.json                              | -                            | No       |
+| `build-command`  | Build script name from package.json                         | -                            | No       |
+| `token`          | NPM authentication token (required unless using provenance) | -                            | No\*     |
+| `provenance`     | Enable provenance statements (requires OIDC)                | `true`                       | No       |
+| `ignore-scripts` | Run npm ci with --ignore-scripts                            | `true`                       | No       |
 
 ## Examples
 
@@ -65,6 +66,19 @@ A GitHub Action for versioning, building, and publishing NPM packages to the NPM
   with:
     node-version: "18"
     token: ${{ secrets.NPM_TOKEN }}
+```
+
+### With provenance (using OIDC)
+
+```yaml
+- uses: starburst997/npm-publish@v1
+  with:
+    provenance: true
+
+  # Need permissions at the top of files as well
+  permissions:
+    id-token: write
+    contents: read
 ```
 
 ## Requirements
