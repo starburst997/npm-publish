@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NPM Publish - GitHub Action</title>
+    <meta
+      name="description"
+      content="A GitHub Action for versioning, building, and publishing NPM packages to the NPM registry."
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: #d0d0d9;
+        background: #0c1018;
+        min-height: 100vh;
+      }
+
+      .hero-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100vh;
+        background: linear-gradient(135deg, #0c1018 0%, #191923 100%);
+        z-index: -1;
+      }
+
+      .hero-accent {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #cb3a3a20 0%, transparent 70%);
+        top: -300px;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        padding: 2rem 0;
+        text-align: center;
+      }
+
+      .hero {
+        padding: 4rem 0 6rem;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(to right, #cb3a3a, #ff6b6b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .tagline {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        color: #96969d;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 0.875rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+      }
+
+      .btn-primary {
+        background: #cb3a3a;
+        color: #ffffff;
+        border: 1px solid #cb3a3a;
+      }
+
+      .btn-primary:hover {
+        background: #ff6b6b;
+        border-color: #ff6b6b;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 30px rgba(203, 58, 58, 0.3);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: #d0d0d9;
+        border: 2px solid #3f3f3f;
+      }
+
+      .btn-secondary:hover {
+        background: #32373c;
+        border-color: #636669;
+      }
+
+      .install-section {
+        background: #141518;
+        border-top: 1px solid #3f3f3f;
+        border-bottom: 1px solid #3f3f3f;
+        padding: 3rem 0;
+      }
+
+      .code-block {
+        background: #0c1018;
+        border: 1px solid #3f3f3f;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1.5rem auto;
+        max-width: 600px;
+        font-family: "Monaco", monospace;
+        font-size: 1rem;
+        color: #98d280;
+        overflow-x: auto;
+      }
+
+      .features-section {
+        padding: 4rem 0;
+        background: #0c1018;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .feature-card {
+        background: #141518;
+        border: 1px solid #3f3f3f;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        border-color: #cb3a3a;
+        transform: translateY(-2px);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-title {
+        font-size: 1.3rem;
+        color: #d0d0d9;
+        margin-bottom: 0.5rem;
+      }
+
+      .feature-desc {
+        color: #96969d;
+        font-size: 0.95rem;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        color: #d0d0d9;
+        margin-bottom: 1rem;
+      }
+
+      .section-subtitle {
+        text-align: center;
+        color: #96969d;
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .inputs-section {
+        padding: 4rem 0;
+        background: #141518;
+      }
+
+      .inputs-table {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: #0c1018;
+        border: 1px solid #3f3f3f;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        background: #141518;
+        color: #ffe169;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 1px solid #3f3f3f;
+      }
+
+      td {
+        padding: 1rem;
+        border-bottom: 1px solid #3f3f3f;
+        color: #96969d;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .code-inline {
+        background: #141518;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-family: "Monaco", monospace;
+        color: #e18cf5;
+        font-size: 0.9rem;
+      }
+
+      footer {
+        background: #0c1018;
+        padding: 3rem 0;
+        text-align: center;
+        color: #96969d;
+        border-top: 1px solid #3f3f3f;
+      }
+
+      footer a {
+        color: #cb3a3a;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      footer a:hover {
+        color: #ff6b6b;
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+
+        .tagline {
+          font-size: 1.2rem;
+        }
+
+        .code-block {
+          font-size: 0.85rem;
+          padding: 1rem;
+        }
+
+        .inputs-table {
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero-background">
+      <div class="hero-accent"></div>
+    </div>
+
+    <header>
+      <div class="container">
+        <nav>
+          <a
+            href="https://github.com/starburst997/npm-publish"
+            class="btn btn-secondary"
+          >
+            View on GitHub →
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container">
+        <h1>NPM Publish</h1>
+        <p class="tagline">
+          Version, build, and publish NPM packages to the registry with a
+          single action
+        </p>
+        <div class="cta-buttons">
+          <a
+            href="https://github.com/marketplace/actions/npm-publish"
+            class="btn btn-primary"
+          >
+            View on Marketplace
+          </a>
+          <a
+            href="https://github.com/starburst997/npm-publish"
+            class="btn btn-secondary"
+          >
+            Documentation
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="install-section">
+      <div class="container">
+        <h2 class="section-title">Quick Start</h2>
+        <p class="section-subtitle">Add to your GitHub workflow</p>
+        <div class="code-block">- uses: starburst997/npm-publish@v1
+  with:
+    token: ${{ secrets.NPM_TOKEN }}</div>
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div class="container">
+        <h2 class="section-title">Features</h2>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">📦</div>
+            <div class="feature-title">Simple Setup</div>
+            <div class="feature-desc">
+              One-step configuration with sensible defaults
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🔢</div>
+            <div class="feature-title">Version Control</div>
+            <div class="feature-desc">
+              Optional automatic version bumping in package.json
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🔨</div>
+            <div class="feature-title">Custom Builds</div>
+            <div class="feature-desc">
+              Run custom build commands before publishing
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <div class="feature-title">Fast Publishing</div>
+            <div class="feature-desc">
+              Efficient dependency installation and deployment
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="inputs-section">
+      <div class="container">
+        <h2 class="section-title">Configuration</h2>
+        <p class="section-subtitle">Available input parameters</p>
+
+        <div class="inputs-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Input</th>
+                <th>Default</th>
+                <th>Required</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="code-inline">token</span></td>
+                <td>-</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td><span class="code-inline">node-version</span></td>
+                <td>20</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><span class="code-inline">version</span></td>
+                <td>-</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><span class="code-inline">build-command</span></td>
+                <td>-</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><span class="code-inline">registry-url</span></td>
+                <td>registry.npmjs.org</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><span class="code-inline">ignore-scripts</span></td>
+                <td>true</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <p>
+          <a href="https://github.com/starburst997/npm-publish">GitHub</a> •
+          <a href="https://github.com/starburst997/npm-publish/issues"
+            >Issues</a
+          >
+          •
+          <a href="https://github.com/starburst997/npm-publish/releases"
+            >Releases</a
+          >
+        </p>
+        <p style="margin-top: 1rem; color: #636669">Made by JD Boivin</p>
+      </div>
+    </footer>
+  </body>
+</html>
