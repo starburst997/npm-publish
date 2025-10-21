@@ -24,9 +24,14 @@ inputs:
     default: ""
 
   token:
-    description: "NPM authentication token"
+    description: "NPM authentication token (required unless using provenance with OIDC)"
     required: false
     default: ""
+
+  provenance:
+    description: "Enable provenance statements (requires OIDC, id-token: write permission)"
+    required: false
+    default: "true"
 
   ignore-scripts:
     description: "Run npm ci with --ignore-scripts flag"
@@ -73,7 +78,12 @@ runs:
       shell: bash
       env:
         NODE_AUTH_TOKEN: ${{ inputs.token }}
-      run: npm publish
+      run: |
+        if [ "${{ inputs.provenance }}" == "true" ]; then
+          npm publish --provenance --access public
+        else
+          npm publish
+        fi
 
 branding:
   icon: "package"
