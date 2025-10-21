@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'docs/**'
-      - '.github/workflows/gh-pages.yml'
+      - "docs/**"
+      - ".github/workflows/gh-pages.yml"
   workflow_dispatch:
 
 permissions:
