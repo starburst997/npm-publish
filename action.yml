@@ -25,7 +25,8 @@ inputs:
 
   token:
     description: "NPM authentication token"
-    required: true
+    required: false
+    default: ""
 
   ignore-scripts:
     description: "Run npm ci with --ignore-scripts flag"
