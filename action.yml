@@ -41,20 +41,59 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Detect package manager
+      id: detect-pm
+      shell: bash
+      run: |
+        if [ -f "pnpm-lock.yaml" ]; then
+          echo "pm=pnpm" >> $GITHUB_OUTPUT
+          echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
+        elif [ -f "yarn.lock" ]; then
+          echo "pm=yarn" >> $GITHUB_OUTPUT
+          echo "lockfile=yarn.lock" >> $GITHUB_OUTPUT
+        elif [ -f "package-lock.json" ]; then
+          echo "pm=npm" >> $GITHUB_OUTPUT
+          echo "lockfile=package-lock.json" >> $GITHUB_OUTPUT
+        else
+          echo "pm=npm" >> $GITHUB_OUTPUT
+          echo "lockfile=" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Setup pnpm
+      if: steps.detect-pm.outputs.pm == 'pnpm'
+      uses: pnpm/action-setup@v4
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
-        cache: "npm"
+        cache: ${{ steps.detect-pm.outputs.pm }}
 
     - name: Install dependencies
       shell: bash
       run: |
-        if [ "${{ inputs.ignore-scripts }}" == "true" ]; then
-          npm ci --ignore-scripts
+        PM="${{ steps.detect-pm.outputs.pm }}"
+        IGNORE_SCRIPTS="${{ inputs.ignore-scripts }}"
+
+        if [ "$PM" == "pnpm" ]; then
+          if [ "$IGNORE_SCRIPTS" == "true" ]; then
+            pnpm install --frozen-lockfile --ignore-scripts
+          else
+            pnpm install --frozen-lockfile
+          fi
+        elif [ "$PM" == "yarn" ]; then
+          if [ "$IGNORE_SCRIPTS" == "true" ]; then
+            yarn install --frozen-lockfile --ignore-scripts
+          else
+            yarn install --frozen-lockfile
+          fi
         else
-          npm ci
+          if [ "$IGNORE_SCRIPTS" == "true" ]; then
+            npm ci --ignore-scripts
+          else
+            npm ci
+          fi
         fi
 
     - name: Update package version
@@ -65,11 +104,20 @@ runs:
     - name: Build package
       shell: bash
       run: |
-        if [ -n "${{ inputs.build-command }}" ] && grep -q "\"${{ inputs.build-command }}\":" package.json 2>/dev/null; then
-          echo "Running build command: ${{ inputs.build-command }}"
-          npm run ${{ inputs.build-command }}
-        elif [ -n "${{ inputs.build-command }}" ]; then
-          echo "Build command '${{ inputs.build-command }}' not found in package.json, skipping..."
+        PM="${{ steps.detect-pm.outputs.pm }}"
+        BUILD_CMD="${{ inputs.build-command }}"
+
+        if [ -n "$BUILD_CMD" ] && grep -q "\"$BUILD_CMD\":" package.json 2>/dev/null; then
+          echo "Running build command: $BUILD_CMD"
+          if [ "$PM" == "pnpm" ]; then
+            pnpm run $BUILD_CMD
+          elif [ "$PM" == "yarn" ]; then
+            yarn run $BUILD_CMD
+          else
+            npm run $BUILD_CMD
+          fi
+        elif [ -n "$BUILD_CMD" ]; then
+          echo "Build command '$BUILD_CMD' not found in package.json, skipping..."
         else
           echo "No build command specified, skipping..."
         fi
