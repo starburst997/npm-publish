@@ -119,7 +119,7 @@ runs:
     - name: Update package version
       if: inputs.version != ''
       shell: bash
-      run: npm version ${{ inputs.version }} --no-git-tag-version
+      run: npm version ${{ inputs.version }} --no-git-tag-version || true
 
     - name: Build package
       shell: bash
